@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: infosys_test
+      PGDATA: /data/postgres
+    volumes:
+      - postgres_infosys:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres_infosys
+    restart: unless-stopped
+
+networks:
+  postgres_infosys:
+    driver: bridge
+volumes:
+  postgres_infosys:
