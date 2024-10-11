@@ -26,3 +26,17 @@ class DataService:
             return self.data_repository.load(key)
 
         raise AuthenticationError("Invalid signature")
+
+    def insert(self,
+               session_key: str,
+               key: str,
+               value: str,
+               signature: str):
+        session = self.session_service.get_session(session_key)
+        if self.user_signature_service.validate_signature(signature,
+                                                          session.challenge,
+                                                          session.secret):
+            self.data_repository.save(DataDTO(key=key,
+                                              data=value))
+            return "ok"
+        raise AuthenticationError("Invalid signature")
