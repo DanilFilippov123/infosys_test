@@ -31,5 +31,5 @@ class PasswordService:
         Функция проверки пароля. Возвращает True если пароль совпадает, иначе False
         """
         method_name, hashed_password, salt = hashed_password.split("$")
-        method = self.hash_function[method_name]
+        method = self.hashing_functions_mapping[method_name]
         return method(f"{password}${salt}") == hashed_password
