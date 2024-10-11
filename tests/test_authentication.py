@@ -1,27 +1,30 @@
-import secrets
+import uuid
 
+from errors.session_errors import SessionError
 from tests.base import BaseTestCase
 
 
 class TestAuthentication(BaseTestCase):
 
-    def test_getting_password(self):
+    def test_getting_secret(self):
         self.authentication_service.register("test", "test")
         session_key = self.authentication_service.login("test", "test")
 
-        pk = secrets.randbits(16)
-
-        prime, generator = self.authentication_service.get_public_keys()
-
-        our_partial_key = pow(generator, pk, prime)
-
-        server_partial_key = self.authentication_service.get_partial_key(session_key)
-
-        final_key = pow(server_partial_key, pk, prime)
-
-        self.authentication_service.get_full_key(session_key, our_partial_key)
+        key = self.get_secret(session_key)
 
         session = self.session_service.get_session(session_key)
 
-        self.assertEqual(session.secret, final_key)
+        self.assertEqual(key, session.secret)
 
+    def test_getting_challenge_without_session(self):
+        with self.assertRaises(SessionError):
+            self.authentication_service.get_challenge(uuid.uuid4().hex)
+
+    def test_getting_challenge(self):
+        self.authentication_service.register("test", "test")
+        session_key = self.authentication_service.login("test", "test")
+        challenge = self.authentication_service.get_challenge(session_key)
+
+        session = self.session_service.get_session(session_key)
+
+        self.assertEqual(challenge, session.challenge)
