@@ -48,22 +48,14 @@ class AuthenticationService:
     def get_public_keys(self) -> tuple[int, int]:
         return self.dh.get_public_keys()
 
-    def get_partial_key(self, session_key: str) -> int:
+    def get_partial_key(self, session_key: str, partial_key: int) -> int:
         session = self.session_service.get_session(session_key)
         server_private_key = self.dh.generate_private_key()
         session.server_private_key = server_private_key
+        session.secret = self.dh.generate_full_key(partial_key, session.server_private_key)
         self.session_service.save_session(session)
 
         return self.dh.generate_partial_key(server_private_key)
-
-    def get_full_key(self, session_key: str, partial_key: int) -> str:
-        session = self.session_service.get_session(session_key)
-        if session.server_private_key is None:
-            raise AuthenticationError("First get partial key")
-        session.secret = self.dh.generate_full_key(partial_key, session.server_private_key)
-        session.server_private_key = None
-        self.session_service.save_session(session)
-        return "ok"
 
     def get_challenge(self, session_key: str) -> str:
         session = self.session_service.get_session(session_key)
