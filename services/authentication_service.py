@@ -37,7 +37,7 @@ class AuthenticationService:
         user = self.user_service.get_user(login)
         if self.password_service.check_password(password, user.password):
             session = self.session_service.get_or_create(user)
-            return session.key
+            return session.key.hex
         else:
             raise InvalidPassword
 

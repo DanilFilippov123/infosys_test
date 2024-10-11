@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from dataclasses import dataclass
 
 
@@ -11,4 +12,4 @@ class SessionDTO:
     secret: int | None = None
     server_private_key: int | None = None
 
-    key: str | None = None
+    key: uuid.UUID | None = None

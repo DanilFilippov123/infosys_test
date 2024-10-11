@@ -1,7 +1,5 @@
-from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-import config
 from db.orm.base_orm import Base
 
 
@@ -13,4 +11,3 @@ class UserModel(Base):
     password: Mapped[str] = mapped_column(nullable=False)
 
     session: Mapped["SessionModel"] = relationship(back_populates="user")
-
