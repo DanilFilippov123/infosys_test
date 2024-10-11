@@ -36,7 +36,7 @@ class SessionService:
 
     def get_or_create(self, user: UserDTO) -> SessionDTO:
         try:
-            return self.get_session(user.session.key)
+            return self.get_session(user.session_key)
         except session_errors.SessionError:
             return self.create_session(user)
 
