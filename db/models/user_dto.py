@@ -1,17 +1,11 @@
 from dataclasses import dataclass
-
-import config
+from typing import Any
 
 
 @dataclass
 class UserDTO:
     login: str
     password: str
-    def __post_init__(self):
-        if len(self.login) > config.max_login_length:
-            ValueError("login too long!")
-        if len(self.password) > config.max_password_length:
-            ValueError("password too long!")
 
-
-
+    id_: int | None = None
+    session: Any | None = None
