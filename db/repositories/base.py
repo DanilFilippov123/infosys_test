@@ -9,11 +9,11 @@ class Repository[Model, DTO](abc.ABC):
         pass
 
     @abc.abstractmethod
-    def save(self, obj: T) -> T:
+    def save(self, obj: DTO) -> DTO:
         pass
 
     @abc.abstractmethod
-    def load(self, key) -> T:
+    def load(self, key) -> DTO:
         pass
 
     @abc.abstractmethod
