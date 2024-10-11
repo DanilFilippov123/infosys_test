@@ -1,9 +1,14 @@
 import datetime
 from dataclasses import dataclass
 
+
 @dataclass
 class SessionDTO:
-    key: str
     expired_at: datetime.datetime
-    challenge: str
-    secret: str
+    user: "UserDTO"
+
+    challenge: str | None = None
+    secret: int | None = None
+    server_private_key: int | None = None
+
+    key: str | None = None
