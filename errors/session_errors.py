@@ -4,3 +4,7 @@ class SessionError(Exception):
 
 class SessionExpired(SessionError):
     pass
+
+
+class NoSessionError(SessionError):
+    pass

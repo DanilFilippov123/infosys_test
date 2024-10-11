@@ -1,6 +1,10 @@
+import uuid
+
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.orm.base_orm import Base
+from db.orm.session_orm import SessionModel
 
 
 class UserModel(Base):
