@@ -1,9 +1,13 @@
+from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
+
 from db.models.session_dto import SessionDTO
 from db.orm.session_orm import SessionModel
 from db.orm.user_orm import UserModel
 from db.repositories.base import Repository
 from db.repositories.user_repository import UserRepository
 from db.session import Session
+from errors.session_errors import NoSessionError, SessionError
 
 
 class SessionRepository(Repository[SessionModel, SessionDTO]):
@@ -16,7 +20,7 @@ class SessionRepository(Repository[SessionModel, SessionDTO]):
             secret=session_orm.secret,
             server_private_key=session_orm.server_private_key,
             challenge=session_orm.challenge,
-            user=None
+            user=UserRepository.mapper_to_dto(session_orm.user)
         )
 
     def save(self, session_dto: SessionDTO) -> SessionDTO:
@@ -25,23 +29,35 @@ class SessionRepository(Repository[SessionModel, SessionDTO]):
             secret=session_dto.secret,
             server_private_key=session_dto.server_private_key,
             challenge=session_dto.challenge,
-            expired_at=session_dto.expired_at,
-            user=UserRepository.mapper_to_dto(session_dto.user)
+            expired_at=session_dto.expired_at
         )
         with Session() as session:
-            user = session.get_one(UserModel, UserModel.login == session_dto.user.login)
-            session_model.user = user
-            session.add(session_model)
+            try:
+                user_orm = session.query(UserModel).where(UserModel.login == session_dto.user.login).one()
+            except NoResultFound:
+                raise SessionError("User not found")
+            prev_session = session.execute(select(SessionModel)
+                                           .where(SessionModel.key == session_model.key)).scalar_one_or_none()
+            if prev_session is None:
+                session_model.user = user_orm
+                session.add(session_model)
+            else:
+                session_model = session.merge(session_model)
             session.commit()
+            result = self.mapper_to_dto(session_model)
 
-        return session_dto
+        return result
 
     def load(self, key: str) -> SessionDTO:
-        with Session() as session:
-            session_orm = session.get_one(SessionModel, SessionModel.key == key)
-        return self.mapper_to_dto(session_orm)
+        try:
+            with Session() as session:
+                session_orm = session.get_one(SessionModel, key)
+                result = self.mapper_to_dto(session_orm)
+        except NoResultFound:
+            raise NoSessionError("No session found")
+        return result
 
     def delete(self, key: str) -> None:
         with Session() as session:
-            session.delete(session.get_one(SessionModel, SessionModel.key == key))
+            session.delete(session.get_one(SessionModel, key))
             session.commit()

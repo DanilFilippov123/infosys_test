@@ -16,7 +16,7 @@ class SessionService:
 
     def get_session(self, key: str) -> SessionDTO:
         session = self.session_repository.load(key)
-        if session.expired_at > datetime.datetime.now():
+        if session.expired_at < datetime.datetime.now():
             self.session_repository.delete(key)
             raise session_errors.SessionExpired(f"Session {key} expired")
         return session
@@ -35,10 +35,13 @@ class SessionService:
         return self.session_repository.save(session)
 
     def get_or_create(self, user: UserDTO) -> SessionDTO:
-        try:
-            return self.get_session(user.session_key)
-        except session_errors.SessionError:
-            return self.create_session(user)
+        if user.session_key:
+            try:
+                return self.get_session(user.session_key)
+            except session_errors.SessionError:
+                pass
+        return self.create_session(user)
 
     def delete(self, session_key: str) -> None:
         self.session_repository.delete(session_key)
+
