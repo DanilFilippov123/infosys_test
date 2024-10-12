@@ -1,7 +1,7 @@
-from tests.base import BaseTestCase
+from tests.base import BaseServicesTestCase
 
 
-class TestUserService(BaseTestCase):
+class TestUserService(BaseServicesTestCase):
     def test_registration(self):
         self.user_service.register("test", "test")
         db_user = self.user_service.get_user("test")

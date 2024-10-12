@@ -3,10 +3,10 @@ import hmac
 from sqlalchemy import text
 
 from db.session import engine
-from tests.base import BaseTestCase
+from tests.base import BaseServicesTestCase
 
 
-class TestDataService(BaseTestCase):
+class TestDataService(BaseServicesTestCase):
 
     @classmethod
     def tearDownClass(cls):

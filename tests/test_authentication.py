@@ -1,10 +1,10 @@
 import uuid
 
 from errors.session_errors import SessionError
-from tests.base import BaseTestCase
+from tests.base import BaseServicesTestCase
 
 
-class TestAuthentication(BaseTestCase):
+class TestAuthentication(BaseServicesTestCase):
 
     def test_getting_secret(self):
         self.authentication_service.register("test", "test")
