@@ -6,3 +6,4 @@ import config
 engine = create_engine(config.database_url)
 
 Session = sessionmaker(engine)
+

@@ -1,12 +1,27 @@
 import secrets
-import unittest
+import unittest.mock
+import xmlrpc.client
+from threading import Thread
 
-from sqlalchemy import text
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
+import db.session
+
+# Create an in-memory SQLite database
+sqlight_engine = create_engine("sqlite:///:memory:", echo=True)
+setattr(db.session, 'Session', sessionmaker(sqlight_engine))
+
+import db.orm.base_orm
+import db.orm.session_orm
+import db.orm.user_orm
+import db.orm.data_orm
+
+import config
+import server
 from db.repositories.data_repository import DataRepository
 from db.repositories.session_repository import SessionRepository
 from db.repositories.user_repository import UserRepository
-from db.session import engine
 from services.authentication_service import AuthenticationService
 from services.challenge_service import ChallengeService
 from services.data_service import DataService
@@ -17,9 +32,12 @@ from services.user_service import UserService
 from services.user_signatur_service import UserSignatureService
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseServicesTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        base_model = db.orm.base_orm.Base
+        base_model.metadata.create_all(sqlight_engine)
+
         cls.password_service = PasswordService()
         cls.session_repo = SessionRepository()
         cls.session_service = SessionService(cls.session_repo)
@@ -42,12 +60,6 @@ class BaseTestCase(unittest.TestCase):
                                        cls.data_repo,
                                        cls.user_signature_service)
 
-    def tearDown(self):
-        with engine.connect() as conn:
-            conn.execute(text("TRUNCATE TABLE \"user\" RESTART IDENTITY CASCADE;"))
-            conn.execute(text("TRUNCATE TABLE \"session\" RESTART IDENTITY CASCADE;"))
-            conn.commit()
-
     def get_secret(self, session_key):
         pk = secrets.randbits(16)
 
@@ -59,3 +71,34 @@ class BaseTestCase(unittest.TestCase):
                                                                          our_partial_key)
 
         return pow(server_partial_key, pk, prime)
+
+
+class BaseServerTestCase(unittest.TestCase):
+    class ServerThread(Thread):
+        def __init__(self):
+            super().__init__()
+            self.server = server.server
+
+        def run(self):
+            base_model = db.orm.base_orm.Base
+            base_model.metadata.create_all(sqlight_engine)
+            self.server.serve_forever()
+
+        def kill(self):
+            self.server.shutdown()
+
+    server_thread: ServerThread = None
+
+    client = xmlrpc.client.ServerProxy(
+        f"http://{config.address[0]}:{config.address[1]}/"
+    )
+
+    @classmethod
+    def setUpClass(cls):
+        cls.server_thread = cls.ServerThread()
+        cls.server_thread.start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server_thread.kill()
+        cls.server_thread.join()

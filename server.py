@@ -116,5 +116,3 @@ server = SimpleXMLRPCServer(
 
 server.register_instance(XMLRPCServer())
 server.register_introspection_functions()
-
-server.serve_forever()
