@@ -1,0 +1,6 @@
+#sqlalchemy URI to database
+
+DATABASE_URL=
+
+PRIME=23
+GENERATOR=7

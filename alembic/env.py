@@ -1,3 +1,4 @@
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -29,6 +30,8 @@ target_metadata = db.orm.base_orm.Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+config.set_main_option('sqlalchemy.url', os.getenv('DATABASE_URL'))
 
 
 def run_migrations_offline() -> None:
