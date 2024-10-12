@@ -6,21 +6,21 @@ from tests.base import BaseServerTestCase, sqlight_engine
 class TestXLMRPCServer(BaseServerTestCase):
 
     def test_register(self):
-        res = self.client.register("test", "test")
+        res = self.client.register("regist", "test")
         self.assertEqual(res, "ok")
 
     def test_authentication(self):
-        register = self.client.register("test", "test")
+        register = self.client.register("test2", "test")
         self.assertEqual(register, "ok")
 
-        session = self.client.login("test", "test")
+        session = self.client.login("test2", "test")
         self.assertIsNotNone(session)
 
     def test_inserting_and_getting_data(self):
-        register = self.client.register("test", "test")
+        register = self.client.register("ins", "test")
         self.assertEqual(register, "ok")
 
-        session = self.client.login("test", "test")
+        session = self.client.login("ins", "test")
         self.assertIsNotNone(session)
 
         challenge = self.client.get_challenge(session)

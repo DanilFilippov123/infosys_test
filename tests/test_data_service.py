@@ -8,12 +8,6 @@ from tests.base import BaseServicesTestCase
 
 class TestDataService(BaseServicesTestCase):
 
-    @classmethod
-    def tearDownClass(cls):
-        with engine.connect() as conn:
-            conn.execute(text("TRUNCATE TABLE \"data\" RESTART IDENTITY CASCADE;"))
-            conn.commit()
-
     def test_setting_and_getting_data(self):
         self.authentication_service.register("test", "test")
         session_key = self.authentication_service.login("test", "test")
