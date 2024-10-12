@@ -1,4 +1,4 @@
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, IntegrityError
 
 from db.models.user_dto import UserDTO
 from db.orm.user_orm import UserModel
@@ -18,9 +18,13 @@ class UserRepository(Repository[UserModel, UserDTO]):
     def save(self, user: UserDTO) -> UserDTO:
         user_orm = UserModel(login=user.login,
                              password=user.password)
-        with Session.begin() as session:
-            session.add(user_orm)
-            session.commit()
+        try:
+            with Session.begin() as session:
+                session.add(user_orm)
+                session.commit()
+        except IntegrityError:
+            session.rollback()
+            raise UserError("User already exists")
         return user
 
     def load(self, login) -> UserDTO:
