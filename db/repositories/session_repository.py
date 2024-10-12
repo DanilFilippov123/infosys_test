@@ -16,7 +16,7 @@ class SessionRepository(Repository[SessionModel, SessionDTO]):
     def mapper_to_dto(session_orm: SessionModel) -> SessionDTO:
         return SessionDTO(
             expired_at=session_orm.expired_at,
-            key=session_orm.key,
+            key=str(session_orm.key),
             secret=session_orm.secret,
             challenge=session_orm.challenge,
             user=UserRepository.mapper_to_dto(session_orm.user)

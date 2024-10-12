@@ -2,7 +2,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from db.orm.base_orm import Base
 
-print(Base.metadata)
+
 class DataModel(Base):
     __tablename__ = "data"
 
