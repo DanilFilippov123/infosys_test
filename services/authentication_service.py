@@ -37,7 +37,7 @@ class AuthenticationService:
         user = self.user_service.get_user(login)
         if self.password_service.check_password(password, user.password):
             session = self.session_service.get_or_create(user)
-            return session.key.hex
+            return session.key
         else:
             raise InvalidPassword
 
@@ -51,8 +51,7 @@ class AuthenticationService:
     def get_partial_key(self, session_key: str, partial_key: int) -> int:
         session = self.session_service.get_session(session_key)
         server_private_key = self.dh.generate_private_key()
-        session.server_private_key = server_private_key
-        session.secret = self.dh.generate_full_key(partial_key, session.server_private_key)
+        session.secret = self.dh.generate_full_key(partial_key, server_private_key)
         self.session_service.save_session(session)
 
         return self.dh.generate_partial_key(server_private_key)

@@ -18,7 +18,6 @@ class SessionRepository(Repository[SessionModel, SessionDTO]):
             expired_at=session_orm.expired_at,
             key=session_orm.key,
             secret=session_orm.secret,
-            server_private_key=session_orm.server_private_key,
             challenge=session_orm.challenge,
             user=UserRepository.mapper_to_dto(session_orm.user)
         )
@@ -27,7 +26,6 @@ class SessionRepository(Repository[SessionModel, SessionDTO]):
         session_model = SessionModel(
             key=session_dto.key,
             secret=session_dto.secret,
-            server_private_key=session_dto.server_private_key,
             challenge=session_dto.challenge,
             expired_at=session_dto.expired_at
         )

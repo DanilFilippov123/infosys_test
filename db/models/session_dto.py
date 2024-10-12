@@ -10,6 +10,5 @@ class SessionDTO:
 
     challenge: str | None = None
     secret: int | None = None
-    server_private_key: int | None = None
 
-    key: uuid.UUID | None = None
+    key: str | None = None
