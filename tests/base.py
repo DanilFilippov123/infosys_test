@@ -3,7 +3,7 @@ import unittest.mock
 import xmlrpc.client
 from threading import Thread
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 import db.session
@@ -18,6 +18,7 @@ import db.orm.user_orm
 import db.orm.data_orm
 
 import config
+from db.orm.session_orm import SessionModel
 import server
 from db.repositories.data_repository import DataRepository
 from db.repositories.session_repository import SessionRepository
@@ -60,6 +61,15 @@ class BaseServicesTestCase(unittest.TestCase):
                                        cls.data_repo,
                                        cls.user_signature_service)
 
+    def tearDown(self):
+        db.orm.session_orm.SessionModel.__table__.drop(sqlight_engine)
+        db.orm.user_orm.UserModel.__table__.drop(sqlight_engine)
+        db.orm.data_orm.DataModel.__table__.drop(sqlight_engine)
+
+        base_model = db.orm.base_orm.Base
+        base_model.metadata.create_all(sqlight_engine)
+
+
     def get_secret(self, session_key):
         pk = secrets.randbits(16)
 
@@ -74,6 +84,7 @@ class BaseServicesTestCase(unittest.TestCase):
 
 
 class BaseServerTestCase(unittest.TestCase):
+
     class ServerThread(Thread):
         def __init__(self):
             super().__init__()
